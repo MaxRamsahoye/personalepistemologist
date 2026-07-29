@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Personal Epistemologist</title>
+<link id="favicon" rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90' font-family='serif' fill='%231A2634'%3EE%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-color: #E8F2FA; 
@@ -80,7 +81,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 2000;
     transition: opacity 0.6s ease, visibility 0.6s ease;
   }
   
@@ -90,15 +91,9 @@
     margin-bottom: 2rem;
   }
 
-  .t-foundation {
-    animation: buildFoundation 1.5s ease-in-out 2 forwards;
-  }
-  .t-pillar {
-    animation: buildPillars 1.5s ease-in-out 2 forwards;
-  }
-  .t-roof {
-    animation: buildRoof 1.5s ease-in-out 2 forwards;
-  }
+  .t-foundation { animation: buildFoundation 1.5s ease-in-out 2 forwards; }
+  .t-pillar { animation: buildPillars 1.5s ease-in-out 2 forwards; }
+  .t-roof { animation: buildRoof 1.5s ease-in-out 2 forwards; }
 
   @keyframes buildFoundation {
     0% { opacity: 0; transform: translateY(15px); }
@@ -116,8 +111,8 @@
     100% { opacity: 0; transform: translateY(-10px); }
   }
 
-  #loader h1 { font-size: 2.85rem; color: var(--text-color); margin-bottom: 0.75rem; }
-  #loader .subtitle { font-family: var(--font-heading); font-size: 1.5rem; color: var(--muted-text); }
+  #loader h1 { font-size: 2.85rem; color: var(--text-color); margin-bottom: 0.75rem; text-align: center; }
+  #loader .subtitle { font-family: var(--font-heading); font-size: 1.5rem; color: var(--muted-text); font-style: normal; text-align: center; padding: 0 1rem;}
 
   /* Main Layout */
   .main-layout {
@@ -127,8 +122,19 @@
     background: var(--bg-color);
     opacity: 0;
     transition: opacity 0.8s ease;
+    position: relative;
   }
   .main-layout.loaded { opacity: 1; }
+
+  /* Mobile Overlay */
+  .mobile-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .mobile-overlay.active { display: block; opacity: 1; }
 
   /* Sidebar (Strictly 1/3) */
   .sidebar {
@@ -141,7 +147,7 @@
     display: flex;
     flex-direction: column;
     box-shadow: 2px 0 15px rgba(0,0,0,0.02);
-    z-index: 10;
+    z-index: 100;
   }
 
   .sidebar-content {
@@ -269,16 +275,20 @@
     100% { transform: translateX(calc(66.66vw + 200px)); }
   }
 
-  /* Floating Top Bar */
+  /* Floating Top Bar (Theme & Audio Icons) */
   .floating-top-bar {
     position: absolute;
     top: 0;
-    right: 0;
+    left: 0; right: 0;
     padding: 1.5rem 2.5rem;
     z-index: 50;
     display: flex;
-    gap: 8px;
+    justify-content: space-between;
+    pointer-events: none;
   }
+
+  .menu-btn { display: none; pointer-events: auto; }
+  .right-icons { display: flex; gap: 8px; pointer-events: auto; }
 
   .header-icon-btn {
     background: none;
@@ -298,7 +308,7 @@
     overflow-y: auto;
     padding: 2rem 2.5rem; 
     display: flex; flex-direction: column; gap: 1.5rem;
-    background: transparent;
+    background: var(--bg-color);
   }
 
   .chat-title-row {
@@ -306,6 +316,7 @@
     align-items: center;
     gap: 20px;
     margin-bottom: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .chat-title {
@@ -358,7 +369,7 @@
   ::-webkit-scrollbar-thumb { background: var(--border-color); }
 
   .msg {
-    max-width: 80%; padding: 1.25rem 1.5rem; line-height: 1.6; font-size: 0.95rem;
+    max-width: 85%; padding: 1.25rem 1.5rem; line-height: 1.6; font-size: 0.95rem;
     animation: fadeIn 0.3s ease; border-radius: 2px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     position: relative;
@@ -373,6 +384,7 @@
   .msg.system-note {
     align-self: center; background: transparent; color: var(--muted-text);
     font-size: 0.8rem; font-style: italic; box-shadow: none; padding: 0.5rem; border: none;
+    max-width: 90%; text-align: center;
   }
 
   .replay-btn {
@@ -390,6 +402,12 @@
     align-items: center;
     gap: 15px;
     flex-shrink: 0;
+    transition: opacity 0.3s ease;
+  }
+  .confidence-area.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(100%);
   }
   .confidence-area label {
     font-size: 0.9rem;
@@ -404,7 +422,6 @@
     flex-direction: column;
   }
   
-  /* Custom slider to visually record progress */
   .conf-slider-group input[type="range"] {
     width: 100%;
     -webkit-appearance: none;
@@ -414,28 +431,31 @@
     height: 6px;
     border-radius: 3px;
     outline: none;
-    background: linear-gradient(to right, var(--primary) 50%, var(--border-color) 50%); /* Updated via JS */
+    background: linear-gradient(to right, var(--primary) 50%, var(--border-color) 50%);
   }
   .conf-slider-group input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: var(--primary);
+    border: 2px solid var(--sidebar-bg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   }
   .conf-slider-group input[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: var(--primary);
-    border: none;
+    border: 2px solid var(--sidebar-bg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   }
 
   .slider-ticks {
     display: flex;
     justify-content: space-between;
-    padding: 0 4px; 
+    padding: 0 6px; 
     margin-top: 8px;
     font-size: 0.75rem;
     color: var(--muted-text);
@@ -445,10 +465,10 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    width: 20px;
+    width: 25px;
   }
   .tick-mark {
-    height: 5px;
+    height: 6px;
     width: 1px;
     background: var(--muted-text);
     margin-bottom: 2px;
@@ -509,6 +529,7 @@
     background: var(--primary); color: var(--btn-text); border: none;
     padding: 0 1.2rem; height: 48px; display: flex; align-items: center; gap: 8px;
     cursor: pointer; border-radius: 2px; font-weight: 500; transition: background 0.2s;
+    flex-shrink: 0;
   }
   .send-btn:hover { background: var(--btn-hover); }
 
@@ -523,12 +544,25 @@
     .chat-section { flex: 0 0 60%; max-width: 60%; }
     .sky-header { height: 120px; }
   }
+  
+  /* Mobile Responsiveness */
   @media (max-width: 768px) {
-    .main-layout { flex-direction: column; }
-    .sidebar, .chat-section { flex: 1 1 auto; max-width: 100%; height: auto;}
-    .sidebar { display: none; }
+    .menu-btn { display: flex; }
+    .sidebar {
+      position: fixed; left: -100%; top: 0; height: 100vh;
+      width: 85%; max-width: 320px; z-index: 101; transition: left 0.3s ease;
+      padding: 2rem 1.5rem 0 1.5rem;
+    }
+    .sidebar.open { left: 0; }
+    .chat-section { flex: 1 1 100%; max-width: 100%; }
     .sky-header { height: 100px; }
-    .floating-top-bar { padding: 1rem; }
+    .floating-top-bar { padding: 1rem 1.5rem; }
+    .chat-box { padding: 4rem 1.5rem 1rem 1.5rem; } 
+    .input-container { padding: 1rem 1.5rem; }
+    .confidence-area { padding: 0.5rem 1.5rem; flex-wrap: wrap; }
+    .chat-title-row { align-items: flex-start; gap: 10px; margin-bottom: 1.5rem; }
+    .slider-ticks span { font-size: 0.65rem; width: auto; }
+    .api-key-input { width: 100%; max-width: 250px; }
   }
 </style>
 </head>
@@ -547,9 +581,12 @@
   <p class="subtitle">helping you carefully reflect on the reasons underlying your beliefs</p>
 </div>
 
+<!-- Mobile Sidebar Overlay -->
+<div class="mobile-overlay" id="mobileOverlay"></div>
+
 <div class="main-layout" id="appContainer">
   <!-- Sidebar -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-content">
       <h1>Personal Epistemologist</h1>
       <p class="sidebar-subtitle">Your Guide to the Inquiry</p>
@@ -559,8 +596,8 @@
       <h3>What to Expect</h3>
       <p>The AI adopts a deeply curious and charitable mindset. It acts as a philosophical partner, asking open-ended questions so you can safely examine <em>how</em> you arrived at your conclusions.</p>
 
-      <!-- Dialectic Flow (Visible Initially) -->
-      <div id="dialecticFlow">
+      <!-- Guide Content (Visible Initially) -->
+      <div id="guideSections">
         <h3>The Dialectic Flow</h3>
         <ol>
           <li><strong>State a Claim:</strong> Start by sharing a single, specific claim that you believe to be true.</li>
@@ -569,6 +606,9 @@
           <li><strong>Test the Epistemology:</strong> The AI will pose structural questions about that reasoning.</li>
           <li><strong>Reflection:</strong> The ultimate goal is critical reflection. Conclude the dialogue whenever you reach a point of clarity.</li>
         </ol>
+
+        <h3>Personal Epistemology</h3>
+        <p><strong>Epistemology</strong> is the branch of philosophy concerned with the nature, origin, and limits of human knowledge. <strong>Personal epistemology</strong> is about carefully examining the underlying assumptions, criteria, and processes you use to determine what is true.</p>
       </div>
 
       <!-- Epistemic Map (Hidden Initially) -->
@@ -583,25 +623,30 @@
     </div>
     
     <!-- Conclude Tab -->
-    <button class="conclude-tab" id="wrapUpBtn">Conclude the Conversation & See a Comprehensive Summary</button>
+    <button class="conclude-tab" id="wrapUpBtn">Conclude the Conversation & View a Comprehensive Summary</button>
   </div>
 
   <!-- Chat Section -->
   <div class="chat-section">
-    <!-- Floating Top Bar (Theme & Audio) -->
+    <!-- Floating Top Bar (Menu & Icons) -->
     <div class="floating-top-bar">
-      <button class="header-icon-btn" id="ttsToggle" title="Toggle Auto Text-to-Speech">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <button class="header-icon-btn menu-btn" id="menuToggle" title="Open Guide">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
-      <button class="header-icon-btn" id="sttToggle" title="Voice Input">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-      </button>
-      <button class="header-icon-btn" id="themeToggle" title="Toggle Theme">
-        <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-      </button>
+      <div class="right-icons">
+        <button class="header-icon-btn" id="ttsToggle" title="Toggle Auto Text-to-Speech">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        </button>
+        <button class="header-icon-btn" id="sttToggle" title="Voice Input">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        </button>
+        <button class="header-icon-btn" id="themeToggle" title="Toggle Theme">
+          <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      </div>
     </div>
     
-    <!-- Art Section (Moving Clouds) -->
+    <!-- Art Section (Moving Clouds - border removed) -->
     <div class="sky-header">
       <div class="cloud cloud1"></div>
       <div class="cloud cloud2"></div>
@@ -627,11 +672,11 @@
       <button class="print-btn" onclick="window.print()">Download as PDF</button>
     </div>
     
-    <!-- Full-Width Confidence Bar with 10% Interval Markers -->
-    <div class="confidence-area" id="confidenceArea">
+    <!-- Full-Width Confidence Bar (Disabled Initially) -->
+    <div class="confidence-area disabled" id="confidenceArea">
       <label>My Confidence:</label>
       <div class="conf-slider-group">
-        <input type="range" id="confSlider" min="0" max="100" step="10" value="50">
+        <input type="range" id="confSlider" min="0" max="100" step="10" value="50" disabled>
         <div class="slider-ticks">
           <span><div class="tick-mark"></div>0%</span>
           <span><div class="tick-mark"></div>10%</span>
@@ -669,22 +714,56 @@
 </div>
 
 <script>
-  const systemPrompt = `You are the Personal Epistemologist, a conversational AI designed to practice Street Epistemology (SE).
+  const systemPrompt = `You are the Personal Epistemologist, a conversational AI designed to help you carefully and collaboratively explore the reasoning behind your beliefs.
 Adhere strictly to the SE guidelines: Establish rapport, focus on one clear claim, optionally establish a confidence level, identify the main reasons, evaluate the quality of reasoning (testability, falsifiability), and wrap up amicably. Be collaborative, charitable, and resilient. Ask only ONE open-ended question at a time.
 
-CRITICAL INSTRUCTION:
-At the very end of EVERY response you generate, you MUST append a hidden JSON block wrapped in <epistemic_state> tags that summarizes the current state of the user's belief. 
+CRITICAL INSTRUCTIONS:
+1. When you explicitly ask the user for their confidence level on a scale (e.g., 0 to 100), you MUST include the exact hidden tag [ENABLE_SLIDER] somewhere in your response. This activates the UI slider for them.
+2. At logical points in the conversation, after exploring a reason or addressing a thought experiment, naturally ask the user if this reflection changes their confidence level. (e.g., "Does looking at it from this angle shift your confidence at all?").
+3. At the very end of EVERY response you generate, you MUST append a hidden JSON block wrapped in <epistemic_state> tags that summarizes the current state of the user's belief. 
 Format exactly like this:
 <epistemic_state>{"claim": "the specific claim being discussed", "confidence": "their stated confidence or 'Unknown'", "main_reason": "the primary reason identified or 'Unknown'"}</epistemic_state>`;
 
+  const starterClaims = [
+    "Social media is a net negative for society.",
+    "Morality is objectively true, not just cultural.",
+    "Artificial Intelligence will eventually develop consciousness.",
+    "Free will is an illusion.",
+    "Universal basic income is necessary for future societies.",
+    "Capitalism is the most ethical economic system.",
+    "Humanity will inevitably colonize other planets.",
+    "Art is purely subjective and cannot be objectively good.",
+    "Technological progress always leads to human flourishing.",
+    "The universe is a simulation.",
+    "Human nature is fundamentally selfish.",
+    "Space exploration is a waste of resources.",
+    "True altruism does not exist.",
+    "Cryptocurrency will replace fiat money.",
+    "Democracy is the best form of government.",
+    "Nuclear energy is necessary to combat climate change.",
+    "Eating meat is morally unjustifiable.",
+    "Social media platforms should be regulated like public utilities.",
+    "There is life after death.",
+    "Intelligence is mostly determined by genetics.",
+    "Hard work guarantees success.",
+    "The death penalty is never justified.",
+    "Artificial intelligence poses an existential threat to humanity.",
+    "Animals have the same moral rights as humans.",
+    "Standardized testing is an inaccurate measure of intelligence.",
+    "Privacy is an illusion in the digital age.",
+    "The ends always justify the means."
+  ];
+
   let chatHistory = [];
-  let confidenceChanged = false;
   let ttsEnabled = false;
   let isFirstMessage = true;
 
   const UI = {
     loader: document.getElementById('loader'),
     app: document.getElementById('appContainer'),
+    sidebar: document.getElementById('sidebar'),
+    mobileOverlay: document.getElementById('mobileOverlay'),
+    menuToggle: document.getElementById('menuToggle'),
     chatBox: document.getElementById('chatBox'),
     reportView: document.getElementById('reportView'),
     reportContent: document.getElementById('reportContent'),
@@ -705,12 +784,30 @@ Format exactly like this:
     mapClaim: document.getElementById('mapClaim'),
     mapConfidence: document.getElementById('mapConfidence'),
     mapReason: document.getElementById('mapReason'),
-    dialecticFlow: document.getElementById('dialecticFlow'),
+    guideSections: document.getElementById('guideSections'),
     epistemicMapContainer: document.getElementById('epistemicMapContainer')
   };
 
+  function updateFavicon(isDark) {
+    const color = isDark ? '%23F4F8FC' : '%231A2634';
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-family='serif' fill='${color}'>E</text></svg>`;
+    document.getElementById('favicon').href = "data:image/svg+xml;charset=utf-8," + svg;
+  }
+
   // Setup UI
   window.addEventListener('load', () => { 
+    const shuffled = starterClaims.sort(() => 0.5 - Math.random()).slice(0, 3);
+    shuffled.forEach(claim => {
+      const btn = document.createElement('button');
+      btn.className = 'pill';
+      btn.innerText = `"${claim}"`;
+      btn.onclick = () => fillClaim(claim);
+      UI.pillContainer.insertBefore(btn, UI.pivotBtn);
+    });
+
+    // Default to Light Mode
+    updateFavicon(false);
+
     // 2 complete cycles of a 1.5s animation = 3000ms
     setTimeout(() => { 
       UI.loader.style.opacity = '0'; 
@@ -720,26 +817,48 @@ Format exactly like this:
     }, 3000); 
   });
   
+  // Mobile Sidebar Toggles
+  UI.menuToggle.addEventListener('click', () => {
+    UI.sidebar.classList.add('open');
+    UI.mobileOverlay.classList.add('active');
+  });
+  UI.mobileOverlay.addEventListener('click', () => {
+    UI.sidebar.classList.remove('open');
+    UI.mobileOverlay.classList.remove('active');
+  });
+
   // Theme
   UI.themeToggle.addEventListener('click', () => {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
-    document.body.setAttribute('data-theme', isDark ? '' : 'dark');
-    UI.themeIcon.innerHTML = isDark ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>' : '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
-    updateSliderGradient(); // Refresh gradient colors
+    const newIsDark = !isDark;
+    document.body.setAttribute('data-theme', newIsDark ? 'dark' : '');
+    UI.themeIcon.innerHTML = newIsDark 
+      ? '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'
+      : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+    updateSliderGradient(); 
+    updateFavicon(newIsDark);
   });
 
   // Controls
   UI.input.addEventListener('input', function() { this.style.height = '48px'; this.style.height = this.scrollHeight + 'px'; });
+  function fillClaim(text) { UI.input.value = text; UI.input.focus(); }
   
   function updateSliderGradient() {
     const val = UI.confSlider.value;
     UI.confSlider.style.background = `linear-gradient(to right, var(--primary) 0%, var(--primary) ${val}%, var(--border-color) ${val}%, var(--border-color) 100%)`;
   }
 
+  // Update visually on drag
   UI.confSlider.addEventListener('input', (e) => {
     UI.confValue.innerText = `${e.target.value}%`;
-    confidenceChanged = true;
     updateSliderGradient();
+  });
+
+  // Sync to chat upon drop/release
+  UI.confSlider.addEventListener('change', (e) => {
+    if (UI.confSlider.disabled) return;
+    UI.input.value = `*I have adjusted my confidence level to ${e.target.value}%*\n\n[System Note: The user moved the confidence slider. Acknowledge this shift and explore what caused it.]`;
+    sendMessage();
   });
   
   // Initial Slider Style
@@ -786,9 +905,15 @@ Format exactly like this:
     const div = document.createElement('div');
     div.className = `msg ${role}`;
     
+    // Check if the user text contains the hidden system note, format cleanly
+    let displayText = text;
+    if (role === 'user' && text.includes('[System Note:')) {
+      displayText = text.split('[System Note:')[0].trim();
+    }
+
     const contentDiv = document.createElement('div');
     contentDiv.className = 'msg-content';
-    contentDiv.innerText = text;
+    contentDiv.innerText = displayText;
     div.appendChild(contentDiv);
 
     if (role === 'model') {
@@ -796,7 +921,7 @@ Format exactly like this:
       replayBtn.className = 'replay-btn';
       replayBtn.title = "Read aloud";
       replayBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
-      replayBtn.onclick = () => speakText(text, true);
+      replayBtn.onclick = () => speakText(displayText, true);
       div.appendChild(replayBtn);
     }
 
@@ -813,20 +938,14 @@ Format exactly like this:
     if (!apiKey) { alert("Please enter a valid Gemini API Key."); UI.api.focus(); return; }
 
     if (!isWrapUp) {
-      if (confidenceChanged) {
-        text += `\n\n[System Note: User silently adjusted their confidence slider to ${UI.confSlider.value}%. Factor this into your next response.]`;
-        confidenceChanged = false;
-      }
-      
       if (isFirstMessage) {
-        UI.dialecticFlow.style.display = 'none';
+        UI.guideSections.style.display = 'none';
         UI.epistemicMapContainer.style.display = 'block';
         UI.pivotBtn.style.display = 'inline-block';
         isFirstMessage = false;
       }
 
-      const displayParts = text.split('\n\n[System Note:');
-      appendMessage('user', displayParts[0]);
+      appendMessage('user', text);
       chatHistory.push({ role: "user", parts: [{ text: text }] });
       UI.input.value = ''; UI.input.style.height = '48px';
     }
@@ -849,6 +968,7 @@ Format exactly like this:
       
       let reply = data.candidates[0].content.parts[0].text;
       
+      // Parse Epistemic Map
       const stateRegex = /<epistemic_state>([\s\S]*?)<\/epistemic_state>/;
       const match = reply.match(stateRegex);
       if (match) {
@@ -859,6 +979,13 @@ Format exactly like this:
           UI.mapReason.innerText = state.main_reason || "Unknown";
         } catch(e) {}
         reply = reply.replace(stateRegex, '').trim();
+      }
+
+      // Check if AI unlocked slider
+      if (reply.includes('[ENABLE_SLIDER]')) {
+        UI.confSlider.disabled = false;
+        UI.confidenceArea.classList.remove('disabled');
+        reply = reply.replace(/\[ENABLE_SLIDER\]/g, '').trim();
       }
 
       if (isWrapUp) {
